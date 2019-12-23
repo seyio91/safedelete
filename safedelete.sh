@@ -23,8 +23,7 @@ while getopts "fdr" option; do
     f ) FILEONLY_DEL=1;;
     d ) DIRONLY_DEL=1;;
     r ) RECURSIVE_DEL=1;;
-    \? ) echo "Error and Function to display Usage"
-        exit 1
+    \? ) usage
         ;;
     esac
     emptyargs=false
@@ -39,7 +38,11 @@ fi
 #only run when other checks pass
 FILES=("$@")
 
-
+#check if Files are not empty after argument
+if [ ! ${FILES[@]} ]; then
+    echo "File Argument Missing in Command"
+    usage
+fi
 
 trash(){
     local file=$1
@@ -62,6 +65,8 @@ trash(){
     return 0
 }
 
+
+#FILE DELETE
 for file in "${FILES[@]}"; do
     #test if file Exist
     if [[ ! -e $file ]]; then
