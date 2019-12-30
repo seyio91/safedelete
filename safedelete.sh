@@ -4,7 +4,8 @@ normal="\033[0m"
 greentext="\033[32m"
 warning="\e[93m"
 danger="\e[91m"
-SAFEDELETEDIR="$HOME/.Trash"
+DEFAULTDELDIR="$HOME/.Trash"
+SAFEDELETEDIR=${SAFEDELETEDIR:-DEFAULTDELDIR}
 RECURSIVE_DEL=
 DIRONLY_DEL=
 INTERACTIVE_DEL=
@@ -25,13 +26,14 @@ usage(){
 }
 
 
-while getopts "idrf" option; do
+while getopts "idrft:" option; do
     case "$option" in
 
     i ) INTERACTIVE_DEL=1;;
     d ) DIRONLY_DEL=1;;
     r ) RECURSIVE_DEL=1;;
     f ) FILEONLY_DEL=1;;
+    t ) SAFEDELETEDIR=$OPTARG;;
     \? ) usage
         ;;
     esac
@@ -57,11 +59,11 @@ delete(){
     local file=$1
     if [[ $INTERACTIVE_DEL = 1 ]]; then
         echo -e $blue"Are You Sure you want to Delete \"$file\"?"$normal
-        echo -n "(yes/no): "
+        echo -n "(Press y|Y for Yes, any other key for No) Default - n: "
 
         read reply
 
-        if [[ $reply = "yes" || $reply = "y" || ! -n $reply ]]; then
+        if [[ $reply = "yes" || $reply = "y" ]]; then
             trash $file
         else
             echo -e $danger"Cancelled by User!!\n"$normal
@@ -96,13 +98,13 @@ trash(){
 
 
 #ensure SafeDelete Folder Exists
-if [[ ! -e $SAFEDELETEDIR ]]; then
+if [[ ! -e $SAFEDELETEDIR ]]  || [[ ! -d $SAFEDELETEDIR ]]; then
     echo -e $blue"Safe Delete Recycle Bin does not Exist, Do you want to create it at \"$SAFEDELETEDIR\"?: "$normal
-    echo -n "(yes/no): "
+    echo -n "(Press y|Y for Yes, any other key for No) Default - n: "
 
     read reply
 
-    if [[ $reply = "yes" || $reply = "y" || ! -n $reply ]]; then
+    if [[ $reply = "Y" || $reply = "y" ]]; then
         mkdir -p "$SAFEDELETEDIR"
     else
         echo -e $danger"Exiting Script. SafeDelete Recycle Bin does not Exist"$normal
